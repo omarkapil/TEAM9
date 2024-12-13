@@ -1,0 +1,64 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4; /* لون خلفية خفيف */
+    margin: 0;
+    padding: 20px; /* إضافة حشوة حول المحتوى */
+}
+
+h1 {
+    color: #00698f;
+    margin-bottom: 20px; /* إضافة مسافة أسفل العنوان */
+}
+
+a {
+    text-decoration: none;
+    color: #00698f;
+}
+
+a:hover {
+    color: #003d5c;
+}
+
+input[type="text"], input[type="password"], textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 4px; /* إضافة زوايا مستديرة */
+}
+
+input[type="submit"] {
+    background-color: #00698f;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s; /* تأثير انتقال عند التمرير */
+}
+
+input[type="submit"]:hover {
+    background-color: #003d5c;
+}
+
+/* تنسيق الجدول */
+table {
+    width: 100%;
+    border-collapse: collapse; /* دمج الحدود */
+    margin-top: 20px; /* إضافة مسافة أعلى الجدول */
+}
+
+th, td {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #ccc; /* إضافة حدود للجدول */
+}
+
+th {
+    background-color: #00698f; /* لون خلفية لرؤوس الجدول */
+    color: white; /* لون النص لرؤوس الجدول */
+}
+
+tr:nth-child(even) {
+    background-color: #f2f2f2; /* لون خلفية للصفوف الزوجية */
+}

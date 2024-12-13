@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Projects</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <h1>Your Projects</h1>
+    <table>
+        <tr>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Requirements</th>
+            <th>Leader</th>
+            <th>Team Members</th>
+        </tr>
+        {% for project in projects %}
+        <tr>
+            <td>{{ project.title }}</td>
+            <td>{{ project.description }}</td>
+            <td>{{ project.requirements }}</td>
+            <td>{{ project.leader }}</td>
+            <td>{{ project.team_members }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <a href="{{ url_for('create_project') }}">Create New Project</a>
+    <a href="{{ url_for('logout') }}">Logout</a>
+</body>
+</html>

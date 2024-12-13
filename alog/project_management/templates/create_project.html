@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Management</title>
+    <link rel="stylesheet" href="../static/creat_project.css">
+
+</head>
+<body>
+    <div class="container">
+        <h1>Project Management</h1>
+        <form id="project-form">
+            <input type="text" name="title" placeholder="Project Title" required>
+            <textarea name="description" placeholder="Project Description" required></textarea>
+            <input type="text" name="leader" placeholder="Team Leader" required>
+            
+            <div>
+                <label for="team_size">Number of Team Members:</label>
+                <input type="number" id="team_size" placeholder="Enter team size" min="1" required>
+                <button type="button" onclick="generateTeamFields()">Generate Fields</button>
+            </div>
+            
+            <div id="team-members-container">
+                <!-- Fields for team members will be dynamically added here -->
+            </div>
+
+            <div id="task-container">
+                <h3>Tasks</h3>
+                <div class="task">
+                    <input type="text" name="task_name" placeholder="Task Name" required>
+                    <select name="assignee" required>
+                        <option value="" disabled selected>Assign to</option>
+                    </select>
+                    <select name="difficulty" required>
+                        <option value="" disabled selected>Difficulty</option>
+                        <option value="Easy">Easy</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Hard">Hard</option>
+                    </select>
+                    <input type="date" name="deadline" placeholder="Deadline" required>
+                </div>
+            </div>
+            <button type="button" class="add-task-btn" onclick="addTask()">Add Task</button>
+
+            <input type="submit" value="Create Project">
+        </form>
+    </div>
+
+    <script>
+        // Generate team member fields dynamically
+        function generateTeamFields() {
+            const container = document.getElementById('team-members-container');
+            const teamSize = parseInt(document.getElementById('team_size').value, 10);
+            container.innerHTML = ''; // Clear previous fields
+            
+            if (!isNaN(teamSize) && teamSize > 0) {
+                for (let i = 1; i <= teamSize; i++) {
+                    const memberField = document.createElement('input');
+                    memberField.type = 'text';
+                    memberField.name = `team_member_${i}`;
+                    memberField.placeholder = `Team Member ${i} Name`;
+                    memberField.required = true;
+                    container.appendChild(memberField);
+                }
+            } else {
+                alert('Please enter a valid team size.');
+            }
+        }
+
+        function addTask() {
+            const taskContainer = document.getElementById('task-container');
+            const newTask = document.createElement('div');
+            newTask.className = 'task';
+            newTask.innerHTML = `
+                <input type="text" name="task_name" placeholder="Task Name" required>
+                <select name="assignee" required>
+                    <option value="" disabled selected>Assign to</option>
+                </select>
+                <select name="difficulty" required>
+                    <option value="" disabled selected>Difficulty</option>
+                    <option value="Easy">Easy</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Hard">Hard</option>
+                </select>
+                <input type="date" name="deadline" placeholder="Deadline" required>
+            `;
+            taskContainer.appendChild(newTask);
+        }
+    </script>
+</body>
+</html>

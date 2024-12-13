@@ -1,0 +1,125 @@
+/* General styles */
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f9;
+    color: #333;
+}
+
+/* Container styling */
+.container {
+    max-width: 800px;
+    margin: 30px auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Title */
+h1 {
+    text-align: center;
+    color: #820ba3;
+    margin-bottom: 20px;
+    font-size: 28px;
+}
+
+/* Form elements */
+form input[type="text"],
+form input[type="number"],
+form input[type="date"],
+form textarea,
+form select {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+form input[type="text"]:focus,
+form input[type="number"]:focus,
+form input[type="date"]:focus,
+form textarea:focus,
+form select:focus {
+    border-color: #820ba3;
+    outline: none;
+}
+
+/* Button styling */
+button,
+form input[type="submit"] {
+    background-color: #820ba3;
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    margin-top: 10px;
+    font-size: 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover,
+form input[type="submit"]:hover {
+    background-color: #45a049;
+}
+
+.add-task-btn {
+    margin-top: 20px;
+    display: inline-block;
+}
+
+/* Tasks styling */
+#task-container {
+    margin-top: 20px;
+    background: #f9f9f9;
+    padding: 10px;
+    border: 1px dashed #ddd;
+    border-radius: 4px;
+}
+
+.task {
+    margin-bottom: 15px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #fff;
+}
+
+.task input[type="text"],
+.task select,
+.task input[type="date"] {
+    margin-bottom: 10px;
+}
+
+/* Team members section */
+#team-members-container {
+    margin-top: 20px;
+    background: #f9f9f9;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+    }
+
+    form input[type="text"],
+    form input[type="number"],
+    form input[type="date"],
+    form textarea,
+    form select {
+        font-size: 12px;
+    }
+
+    button,
+    form input[type="submit"] {
+        font-size: 12px;
+    }
+}
