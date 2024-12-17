@@ -4,13 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Project Management</title>
-    <link rel="stylesheet" href="../static/creat_project.css">
-
+    <link rel="stylesheet" href="{{ url_for('static', filename='creat_project.css') }}">
 </head>
 <body>
     <div class="container">
         <h1>Project Management</h1>
-        <form id="project-form">
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <ul class="flashes">
+              {% for category, message in messages %}
+                <li class="flash {{ category }}">{{ message }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        {% endwith %}
+
+        <form id="project-form" method="POST" action="{{ url_for('create_project') }}">
             <input type="text" name="title" placeholder="Project Title" required>
             <textarea name="description" placeholder="Project Description" required></textarea>
             <input type="text" name="leader" placeholder="Team Leader" required>
@@ -29,7 +39,7 @@
                 <h3>Tasks</h3>
                 <div class="task">
                     <input type="text" name="task_name" placeholder="Task Name" required>
-                    <select name="assignee" required>
+                    <select name="assignee" class="assignee-select" required>
                         <option value="" disabled selected>Assign to</option>
                     </select>
                     <select name="difficulty" required>
@@ -61,20 +71,46 @@
                     memberField.name = `team_member_${i}`;
                     memberField.placeholder = `Team Member ${i} Name`;
                     memberField.required = true;
+                    memberField.setAttribute('data-member-id', i); // Add an ID to track the member
+                    memberField.addEventListener('input', updateAssigneeOptions);
                     container.appendChild(memberField);
                 }
             } else {
                 alert('Please enter a valid team size.');
             }
+
+            // Update the options in the "Assign to" dropdowns
+            updateAssigneeOptions();
         }
 
+        // Update assignee dropdown options for all tasks
+        function updateAssigneeOptions() {
+            const memberFields = document.querySelectorAll('#team-members-container input');
+            const assigneeSelects = document.querySelectorAll('.assignee-select');
+
+            // Collect all team member names
+            const teamMembers = Array.from(memberFields).map(field => field.value).filter(value => value.trim() !== "");
+
+            // Update each task's assignee dropdown
+            assigneeSelects.forEach(select => {
+                select.innerHTML = '<option value="" disabled selected>Assign to</option>'; // Clear existing options
+                teamMembers.forEach(member => {
+                    const option = document.createElement('option');
+                    option.value = member;
+                    option.textContent = member;
+                    select.appendChild(option);
+                });
+            });
+        }
+
+        // Add a new task field dynamically
         function addTask() {
             const taskContainer = document.getElementById('task-container');
             const newTask = document.createElement('div');
             newTask.className = 'task';
             newTask.innerHTML = `
                 <input type="text" name="task_name" placeholder="Task Name" required>
-                <select name="assignee" required>
+                <select name="assignee" class="assignee-select" required>
                     <option value="" disabled selected>Assign to</option>
                 </select>
                 <select name="difficulty" required>
@@ -86,6 +122,9 @@
                 <input type="date" name="deadline" placeholder="Deadline" required>
             `;
             taskContainer.appendChild(newTask);
+
+            // Update the new task's assignee dropdown
+            updateAssigneeOptions();
         }
     </script>
 </body>
