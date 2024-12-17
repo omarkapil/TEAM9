@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -8,10 +8,14 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///projects.db'
 app.config['SECRET_KEY'] = 'your_secret_key'
 db = SQLAlchemy(app)
+
+# تعليق السطر التالي لإزالة حماية CSRF
+# csrf = CSRFProtect(app)
+
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
-# إعداد OAuth
+# OAuth setup
 oauth = OAuth(app)
 google = oauth.register(
     name='google',
@@ -58,6 +62,7 @@ def index():
     return render_template('dashboard_page.html')
 
 @app.route('/profile')
+@login_required
 def profile():
     return render_template('profile.html')
 
@@ -82,19 +87,23 @@ def login_with_google():
 
 @app.route('/login/google/callback')
 def authorize_google():
-    token = google.authorize_access_token()
-    user_info = google.get('userinfo').json()
-    email = user_info['email']
-    username = user_info['name']
+    try:
+        token = google.authorize_access_token()
+        user_info = google.get('userinfo').json()
+        email = user_info['email']
+        username = user_info['name']
 
-    user = User.query.filter_by(email=email).first()
-    if not user:
-        user = User(username=username, email=email)
-        db.session.add(user)
-        db.session.commit()
+        user = User.query.filter_by(email=email).first()
+        if not user:
+            user = User(username=username, email=email)
+            db.session.add(user)
+            db.session.commit()
 
-    login_user(user)
-    flash('Login with Google successful!', 'success')
+        login_user(user)
+        flash('Login with Google successful!', 'success')
+    except Exception as e:
+        flash(f"An error occurred during Google login: {str(e)}", 'danger')
+        print(f"Error in Google login: {str(e)}")
     return redirect(url_for('create_project'))
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -105,7 +114,7 @@ def register():
         if User.query.filter_by(username=username).first():
             flash('Username already exists. Please choose a different one.', 'danger')
             return redirect(url_for('register'))
-        hashed_password = generate_password_hash(password, method='sha256')
+        hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
         new_user = User(username=username, password=hashed_password)
         db.session.add(new_user)
         db.session.commit()
@@ -122,19 +131,18 @@ def create_project():
             description = request.form['description']
             requirements = request.form['requirements']
             leader = request.form['leader']
-            team_members = request.form['team_members']
+            team_members = request.form.getlist('team_members')
 
             new_project = Project(
                 title=title,
                 description=description,
                 requirements=requirements,
                 leader=leader,
-                team_members=team_members,
+                team_members=','.join(team_members),  # تحويل قائمة أعضاء الفريق إلى سلسلة نصية
                 user_id=current_user.id
             )
             db.session.add(new_project)
 
-            # Adding tasks
             task_names = request.form.getlist('task_name')
             assignees = request.form.getlist('assignee')
             difficulties = request.form.getlist('difficulty')
@@ -154,8 +162,8 @@ def create_project():
             flash('Project and tasks created successfully!', 'success')
             return redirect(url_for('view_projects'))
         except Exception as e:
+            db.session.rollback()  # في حالة الخطأ، استرجع جميع التغييرات
             flash(f"An error occurred: {str(e)}", 'danger')
-
     return render_template('create_project.html')
 
 @app.route('/view_projects')
@@ -171,7 +179,6 @@ def logout():
     flash('Logged out successfully!', 'success')
     return redirect(url_for('index'))
 
-# Main
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
