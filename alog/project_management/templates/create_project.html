@@ -11,44 +11,44 @@
         <h1>Project Management</h1>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-            <ul class="flashes">
-              {% for category, message in messages %}
-                <li class="flash {{ category }}">{{ message }}</li>
-              {% endfor %}
-            </ul>
-          {% endif %}
+        {% if messages %}
+        <div class="alerts">
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
         {% endwith %}
 
         <form id="project-form" method="POST" action="{{ url_for('create_project') }}">
             <input type="text" name="title" placeholder="Project Title" required>
             <textarea name="description" placeholder="Project Description" required></textarea>
+            <textarea name="requirements" placeholder="Project Requirements" required></textarea>
             <input type="text" name="leader" placeholder="Team Leader" required>
-            
+
             <div>
                 <label for="team_size">Number of Team Members:</label>
                 <input type="number" id="team_size" placeholder="Enter team size" min="1" required>
                 <button type="button" onclick="generateTeamFields()">Generate Fields</button>
             </div>
-            
+
             <div id="team-members-container">
-                <!-- Fields for team members will be dynamically added here -->
             </div>
 
             <div id="task-container">
                 <h3>Tasks</h3>
                 <div class="task">
-                    <input type="text" name="task_name" placeholder="Task Name" required>
-                    <select name="assignee" class="assignee-select" required>
+                    <input type="text" name="task_name[]" placeholder="Task Name" required>
+                    <select name="assignee[]" class="assignee-select" required>
                         <option value="" disabled selected>Assign to</option>
                     </select>
-                    <select name="difficulty" required>
+                    <select name="difficulty[]" required>
                         <option value="" disabled selected>Difficulty</option>
                         <option value="Easy">Easy</option>
                         <option value="Medium">Medium</option>
                         <option value="Hard">Hard</option>
                     </select>
-                    <input type="date" name="deadline" placeholder="Deadline" required>
+                    <input type="date" name="deadline[]" required>
                 </div>
             </div>
             <button type="button" class="add-task-btn" onclick="addTask()">Add Task</button>
@@ -58,20 +58,19 @@
     </div>
 
     <script>
-        // Generate team member fields dynamically
+
         function generateTeamFields() {
             const container = document.getElementById('team-members-container');
             const teamSize = parseInt(document.getElementById('team_size').value, 10);
-            container.innerHTML = ''; // Clear previous fields
-            
+            container.innerHTML = ''; 
+
             if (!isNaN(teamSize) && teamSize > 0) {
                 for (let i = 1; i <= teamSize; i++) {
                     const memberField = document.createElement('input');
                     memberField.type = 'text';
-                    memberField.name = `team_member_${i}`;
+                    memberField.name = 'team_members[]';
                     memberField.placeholder = `Team Member ${i} Name`;
                     memberField.required = true;
-                    memberField.setAttribute('data-member-id', i); // Add an ID to track the member
                     memberField.addEventListener('input', updateAssigneeOptions);
                     container.appendChild(memberField);
                 }
@@ -79,21 +78,17 @@
                 alert('Please enter a valid team size.');
             }
 
-            // Update the options in the "Assign to" dropdowns
             updateAssigneeOptions();
         }
 
-        // Update assignee dropdown options for all tasks
         function updateAssigneeOptions() {
             const memberFields = document.querySelectorAll('#team-members-container input');
             const assigneeSelects = document.querySelectorAll('.assignee-select');
 
-            // Collect all team member names
-            const teamMembers = Array.from(memberFields).map(field => field.value).filter(value => value.trim() !== "");
+            const teamMembers = Array.from(memberFields).map(field => field.value.trim()).filter(Boolean);
 
-            // Update each task's assignee dropdown
             assigneeSelects.forEach(select => {
-                select.innerHTML = '<option value="" disabled selected>Assign to</option>'; // Clear existing options
+                select.innerHTML = '<option value="" disabled selected>Assign to</option>';
                 teamMembers.forEach(member => {
                     const option = document.createElement('option');
                     option.value = member;
@@ -103,27 +98,25 @@
             });
         }
 
-        // Add a new task field dynamically
         function addTask() {
             const taskContainer = document.getElementById('task-container');
             const newTask = document.createElement('div');
             newTask.className = 'task';
             newTask.innerHTML = `
-                <input type="text" name="task_name" placeholder="Task Name" required>
-                <select name="assignee" class="assignee-select" required>
+                <input type="text" name="task_name[]" placeholder="Task Name" required>
+                <select name="assignee[]" class="assignee-select" required>
                     <option value="" disabled selected>Assign to</option>
                 </select>
-                <select name="difficulty" required>
+                <select name="difficulty[]" required>
                     <option value="" disabled selected>Difficulty</option>
                     <option value="Easy">Easy</option>
                     <option value="Medium">Medium</option>
                     <option value="Hard">Hard</option>
                 </select>
-                <input type="date" name="deadline" placeholder="Deadline" required>
+                <input type="date" name="deadline[]" required>
             `;
             taskContainer.appendChild(newTask);
 
-            // Update the new task's assignee dropdown
             updateAssigneeOptions();
         }
     </script>
