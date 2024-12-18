@@ -3,19 +3,20 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from authlib.integrations.flask_client import OAuth
+import logging
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///projects.db'
 app.config['SECRET_KEY'] = 'your_secret_key'
 db = SQLAlchemy(app)
 
-# تعليق السطر التالي لإزالة حماية CSRF
-# csrf = CSRFProtect(app)
-
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
-# OAuth setup
+# إعداد نظام تسجيل الأخطاء
+logging.basicConfig(level=logging.DEBUG)
+
+# إعداد OAuth
 oauth = OAuth(app)
 google = oauth.register(
     name='google',
@@ -27,12 +28,12 @@ google = oauth.register(
     client_kwargs={'scope': 'openid email profile'}
 )
 
-# Models
+# نماذج قاعدة البيانات
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(150), unique=True, nullable=False)
     email = db.Column(db.String(150), unique=True, nullable=True)
-    password = db.Column(db.String(150), nullable=True)
+    password = db.Column(db.String(150), nullable=False)
 
 class Project(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -40,120 +41,114 @@ class Project(db.Model):
     description = db.Column(db.String(500), nullable=False)
     requirements = db.Column(db.String(500), nullable=False)
     leader = db.Column(db.String(150), nullable=False)
-    team_members = db.Column(db.String(500), nullable=False)
+    team_members = db.Column(db.String(500), nullable=True)  # مرونة أعلى
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     tasks = db.relationship('Task', backref='project', lazy=True)
+
 
 class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(150), nullable=False)
-    assignee = db.Column(db.String(150), nullable=False)
-    difficulty = db.Column(db.String(50), nullable=False)
-    deadline = db.Column(db.String(50), nullable=False)
+    assignee = db.Column(db.String(150), nullable=True)
+    difficulty = db.Column(db.String(50), nullable=True)
+    deadline = db.Column(db.String(50), nullable=True)
     project_id = db.Column(db.Integer, db.ForeignKey('project.id'), nullable=False)
 
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-# Routes
+# المسارات
 @app.route('/')
 def index():
     return render_template('dashboard_page.html')
 
-@app.route('/profile')
-@login_required
-def profile():
-    return render_template('profile.html')
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+
+        if not username or not password:
+            flash('Please fill out all fields.', 'danger')
+            return redirect(url_for('register'))
+
+        if User.query.filter_by(username=username).first():
+            flash('Username already exists. Please choose another.', 'danger')
+            return redirect(url_for('register'))
+
+        hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
+        new_user = User(username=username, password=hashed_password)
+
+        try:
+            db.session.add(new_user)
+            db.session.commit()
+            flash('Registration successful!', 'success')
+            return redirect(url_for('login'))
+        except Exception as e:
+            db.session.rollback()
+            logging.error(f"Error during registration: {e}")
+            flash('An error occurred. Please try again.', 'danger')
+
+    return render_template('register.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
+        username = request.form.get('username')
+        password = request.form.get('password')
+
         user = User.query.filter_by(username=username).first()
+
         if user and check_password_hash(user.password, password):
             login_user(user)
             flash('Login successful!', 'success')
-            return redirect(url_for('create_project'))
+            return redirect(url_for('index'))
         else:
             flash('Invalid username or password.', 'danger')
+
     return render_template('login.html')
-
-@app.route('/login/google')
-def login_with_google():
-    redirect_uri = url_for('authorize_google', _external=True)
-    return google.authorize_redirect(redirect_uri)
-
-@app.route('/login/google/callback')
-def authorize_google():
-    try:
-        token = google.authorize_access_token()
-        user_info = google.get('userinfo').json()
-        email = user_info['email']
-        username = user_info['name']
-
-        user = User.query.filter_by(email=email).first()
-        if not user:
-            user = User(username=username, email=email)
-            db.session.add(user)
-            db.session.commit()
-
-        login_user(user)
-        flash('Login with Google successful!', 'success')
-    except Exception as e:
-        flash(f"An error occurred during Google login: {str(e)}", 'danger')
-        print(f"Error in Google login: {str(e)}")
-    return redirect(url_for('create_project'))
-
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        if User.query.filter_by(username=username).first():
-            flash('Username already exists. Please choose a different one.', 'danger')
-            return redirect(url_for('register'))
-        hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
-        new_user = User(username=username, password=hashed_password)
-        db.session.add(new_user)
-        db.session.commit()
-        flash('Account created successfully!', 'success')
-        return redirect(url_for('login'))
-    return render_template('register.html')
 
 @app.route('/create_project', methods=['GET', 'POST'])
 @login_required
 def create_project():
     if request.method == 'POST':
-        try:
-            title = request.form['title']
-            description = request.form['description']
-            requirements = request.form['requirements']
-            leader = request.form['leader']
-            team_members = request.form.getlist('team_members')
+        title = request.form.get('title')
+        description = request.form.get('description')
+        requirements = request.form.get('requirements')
+        leader = request.form.get('leader')
+        team_members = request.form.getlist('team_members[]')
 
+
+        # التحقق من صحة البيانات
+        if not title or not description or not leader:
+            flash('Please fill out all required fields.', 'danger')
+            return redirect(url_for('create_project'))
+
+        try:
             new_project = Project(
                 title=title,
                 description=description,
                 requirements=requirements,
                 leader=leader,
-                team_members=','.join(team_members),  # تحويل قائمة أعضاء الفريق إلى سلسلة نصية
+                team_members=','.join(team_members),
                 user_id=current_user.id
             )
             db.session.add(new_project)
 
-            task_names = request.form.getlist('task_name')
-            assignees = request.form.getlist('assignee')
-            difficulties = request.form.getlist('difficulty')
-            deadlines = request.form.getlist('deadline')
+            task_names = request.form.getlist('task_name[]')
+            assignees = request.form.getlist('assignee[]')
+            difficulties = request.form.getlist('difficulty[]')
+            deadlines = request.form.getlist('deadline[]')
 
             for i in range(len(task_names)):
+                if not task_names[i].strip():
+                    continue
                 new_task = Task(
                     name=task_names[i],
-                    assignee=assignees[i],
-                    difficulty=difficulties[i],
-                    deadline=deadlines[i],
+                    assignee=assignees[i] if i < len(assignees) else None,
+                    difficulty=difficulties[i] if i < len(difficulties) else None,
+                    deadline=deadlines[i] if i < len(deadlines) else None,
                     project_id=new_project.id
                 )
                 db.session.add(new_task)
@@ -162,8 +157,10 @@ def create_project():
             flash('Project and tasks created successfully!', 'success')
             return redirect(url_for('view_projects'))
         except Exception as e:
-            db.session.rollback()  # في حالة الخطأ، استرجع جميع التغييرات
-            flash(f"An error occurred: {str(e)}", 'danger')
+            db.session.rollback()
+            logging.error(f"Error creating project: {e}")
+            flash('An error occurred while creating the project.', 'danger')
+
     return render_template('create_project.html')
 
 @app.route('/view_projects')
@@ -176,7 +173,7 @@ def view_projects():
 @login_required
 def logout():
     logout_user()
-    flash('Logged out successfully!', 'success')
+    flash('You have been logged out.', 'success')
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
