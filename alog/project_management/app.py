@@ -113,19 +113,36 @@ def login():
 @login_required
 def create_project():
     if request.method == 'POST':
-        title = request.form.get('title')
-        description = request.form.get('description')
-        requirements = request.form.get('requirements')
-        leader = request.form.get('leader')
-        team_members = request.form.getlist('team_members[]')
-
-
-        # التحقق من صحة البيانات
-        if not title or not description or not leader:
-            flash('Please fill out all required fields.', 'danger')
-            return redirect(url_for('create_project'))
-
         try:
+            # الحصول على بيانات المشروع
+            title = request.form.get('title')
+            description = request.form.get('description')
+            requirements = request.form.get('requirements')
+            leader = request.form.get('leader')
+
+            # الحصول على أعضاء الفريق كقائمة
+            team_members = request.form.getlist('team_members[]')
+
+            # الحصول على المهام
+            task_names = request.form.getlist('task_name[]')
+            assignees = request.form.getlist('assignee[]')
+            difficulties = request.form.getlist('difficulty[]')
+            deadlines = request.form.getlist('deadline[]')
+
+            # التحقق من صحة البيانات
+            if not title or not description or not leader:
+                flash('Please fill out all required fields.', 'danger')
+                return redirect(url_for('create_project'))
+
+            if len(team_members) == 0:
+                flash('You must add at least one team member.', 'error')
+                return redirect(url_for('create_project'))
+
+            if len(task_names) == 0:
+                flash('You must add at least one task.', 'error')
+                return redirect(url_for('create_project'))
+
+            # إنشاء مشروع جديد
             new_project = Project(
                 title=title,
                 description=description,
@@ -136,11 +153,10 @@ def create_project():
             )
             db.session.add(new_project)
 
-            task_names = request.form.getlist('task_name[]')
-            assignees = request.form.getlist('assignee[]')
-            difficulties = request.form.getlist('difficulty[]')
-            deadlines = request.form.getlist('deadline[]')
+            # Commit to generate the project ID
+            db.session.commit()
 
+            # إضافة المهام للمشروع
             for i in range(len(task_names)):
                 if not task_names[i].strip():
                     continue
@@ -149,19 +165,23 @@ def create_project():
                     assignee=assignees[i] if i < len(assignees) else None,
                     difficulty=difficulties[i] if i < len(difficulties) else None,
                     deadline=deadlines[i] if i < len(deadlines) else None,
-                    project_id=new_project.id
+                    project_id=new_project.id  # Ensure the project_id is set here
                 )
                 db.session.add(new_task)
 
             db.session.commit()
+
+            # إعطاء رد إيجابي
             flash('Project and tasks created successfully!', 'success')
             return redirect(url_for('view_projects'))
         except Exception as e:
             db.session.rollback()
             logging.error(f"Error creating project: {e}")
-            flash('An error occurred while creating the project.', 'danger')
+            flash(f'An error occurred: {str(e)}', 'danger')
+            return redirect(url_for('create_project'))
 
     return render_template('create_project.html')
+
 
 @app.route('/view_projects')
 @login_required
