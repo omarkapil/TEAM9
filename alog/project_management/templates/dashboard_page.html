@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Tomorrow:wght@400;700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboardstyel.css') }}">
+</head>
+<body>
+
+    <!-- الشريط العلوي -->
+    <nav class="navbar">
+        <a class="navbar-brand" href="/">TEAM 9</a>
+        <ul id="l1" class="navbar-nav">
+            <li><a href="#home">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#contact">Contact</a></li>
+            <li><a href="{{ url_for('login') }}">login</a></li>
+        </ul>
+    </nav>
+
+    <!-- المحتوى الرئيسي -->
+    <div class="container">
+        <h1>Welcome</h1>
+        <p>. This application will help you to create, managment , and complete your projects fast and easily .</p>
+        <h2>. Let's go .</h2>
+
+        <ul class="actions">
+            <li><a href="{{ url_for('create_project') }}">Create a New Project</a></li>
+            <li><a href="{{ url_for('view_projects') }}">View Your Projects</a></li>
+        </ul>
+    </div>
+</body>
+</html>

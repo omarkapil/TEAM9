@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Tomorrow:wght@400;700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Projects</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='view_projects.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Your Projects</h1>
+        
+        {% for project in projects %}
+        <div class="project-card">
+            <h2>{{ project.title }}</h2>
+            <p><strong>Description:</strong> {{ project.description }}</p>
+            <p><strong>Requirements:</strong> {{ project.requirements }}</p>
+            <p><strong>Team Leader:</strong> {{ project.leader }}</p>
+            <p><strong>Team Members:</strong> {{ project.team_members }}</p>
+
+            <h3>Tasks</h3>
+            <div class="tasks">
+                {% for task in project.tasks %}
+                <div class="task">
+                    <input type="checkbox" class="task-checkbox" data-task-id="{{ task.id }}" onchange="updateProgress(this)">
+                    <span>{{ task.name }}</span> - 
+                    <strong>Assignee:</strong> {{ task.assignee }} |
+                    <strong>Difficulty:</strong> {{ task.difficulty }} |
+                    <strong>Deadline:</strong> {{ task.deadline }}
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Progress Bar -->
+            <div class="progress-container">
+                <label>Project Progress:</label>
+                <progress id="progress-{{ project.id }}" value="0" max="{{ project.tasks|length }}"></progress>
+                <span id="progress-label-{{ project.id }}">0%</span>
+            </div>
+        </div>
+        {% endfor %}
+
+        <!-- أزرار التنقل -->
+        <div class="navigation-buttons">
+            <a href="{{ url_for('index') }}" class="btn">Home Page</a>
+            <a href="{{ url_for('create_project') }}" class="btn btn-primary">Add New Project</a>
+        </div>
+    </div>
+
+    <script>
+        // وظيفة لتحديث شريط التقدم
+        function updateProgress(checkbox) {
+            const projectCard = checkbox.closest('.project-card');
+            const progressBar = projectCard.querySelector('progress');
+            const progressLabel = projectCard.querySelector('span[id^="progress-label"]');
+
+            // احسب المهام المُنجزة
+            const checkboxes = projectCard.querySelectorAll('.task-checkbox');
+            let completedTasks = 0;
+            checkboxes.forEach(cb => { if (cb.checked) completedTasks++; });
+
+            // تحديث شريط التقدم
+            progressBar.value = completedTasks;
+            const totalTasks = checkboxes.length;
+            const percentage = Math.round((completedTasks / totalTasks) * 100);
+            progressLabel.innerText = `${percentage}%`;
+
+            // تحديث لون شريط التقدم بناءً على الإنجاز
+            if (percentage < 50) {
+                progressBar.className = 'low-progress';
+            } else if (percentage < 100) {
+                progressBar.className = 'medium-progress';
+            } else {
+                progressBar.className = 'high-progress';
+            }
+        }
+    </script>
+</body>
+</html>

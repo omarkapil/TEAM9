@@ -1,0 +1,133 @@
+/* تنسيق الصفحة العامة */
+body {
+    font-family: 'Tomorrow', sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    font-family: 'Tomorrow', sans-serif;
+    text-align: center;
+    color: #820ba3;
+}
+
+/* تنسيق كروت المشاريع */
+.project-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 15px 0;
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.project-card h2 {
+    font-family: 'Tomorrow', sans-serif;
+    margin: 0;
+    color: #a30b82;
+}
+
+.project-card p {
+    font-family: 'Tomorrow', sans-serif;
+    margin: 8px 0;
+}
+
+/* تنسيق المهام */
+.task {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.task-checkbox {
+    margin-right: 10px;
+}
+
+/* تنسيق شريط التقدم */
+.progress-container {
+    margin-top: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+progress {
+    width: 100%;
+    height: 20px;
+    border: none;
+    appearance: none;
+}
+
+progress::-webkit-progress-bar {
+    background-color: #eee;
+    border-radius: 8px;
+}
+
+progress::-webkit-progress-value {
+    border-radius: 8px;
+    transition: width 0.3s ease-in-out;
+}
+
+/* ألوان مختلفة بناءً على الإنجاز */
+.low-progress::-webkit-progress-value {
+    background-color: #f00;
+}
+
+.medium-progress::-webkit-progress-value {
+    background-color: #ffa500;
+}
+
+.high-progress::-webkit-progress-value {
+    background-color: #0f0;
+}
+
+span[id^="progress-label"] {
+    font-weight: bold;
+    color: #555;
+}
+/* أزرار التنقل */
+.navigation-buttons {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    gap: 15px;
+}
+
+.btn {
+    font-family: 'Tomorrow', sans-serif;
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    text-decoration: none;
+    color: #fff;
+    background-color: #820ba3;
+    border-radius: 5px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.btn:hover {
+    background-color: #be7ecf;
+    transform: scale(1.05);
+}
+
+.btn-primary {
+    background-color: #820ba3;
+}
+
+.btn-primary:hover {
+    background-color: #be7ecf;
+}
+

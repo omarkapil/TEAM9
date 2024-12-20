@@ -1,0 +1,72 @@
+body {
+    font-family: 'Tomorrow', sans-serif;
+    background-color: #f4f4f9;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.form-container {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 5px 10px rgba(160, 21, 144, 0.151);
+    width: 300px;
+    text-align: center;
+}
+
+h2 {
+    font-family: 'Tomorrow', sans-serif;
+    color :#820ba3;
+    font-size: 20px;
+    margin-bottom: 20px;
+}
+
+h1 {
+    font-family: 'Tomorrow', sans-serif;
+    color :#820ba3;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+form input[type="text"],
+form input[type="password"],
+form input[type="submit"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-family: 'Tomorrow', sans-serif;
+}
+
+form input[type="submit"] {
+    background-color: #820ba3;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    font-family: 'Tomorrow', sans-serif;
+}
+
+form input[type="submit"]:hover {
+    background-color: #5f1c5b;
+}
+
+p {
+    font-size: 14px;
+    font-family: 'Tomorrow', sans-serif;
+}
+
+a {
+    color: #820ba3;
+    text-decoration: none;
+    font-family: 'Tomorrow', sans-serif;
+}
+
+a:hover {
+    text-decoration: underline;
+}

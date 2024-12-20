@@ -1,0 +1,145 @@
+/* Reset Basic Styling */
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: 'Tomorrow', sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+/* Center the container */
+.container {
+    max-width: 400px;
+    margin: 50px auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    font-family: 'Tomorrow', sans-serif;
+}
+
+/* Title Styling */
+h1 {
+    font-family: 'Tomorrow', sans-serif;
+    font-size: 28px;
+    margin-bottom: 20px;
+    color: #444;
+}
+
+/* Form Group Styling */
+.form-group {
+    font-family: 'Tomorrow', sans-serif;
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    font-size: 14px;
+    color: #555;
+}
+
+input[type="text"], 
+input[type="email"], 
+input[type="password"] {
+    font-family: 'Tomorrow', sans-serif;
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+    outline: none;
+    transition: all 0.3s ease-in-out;
+    font-family: 'Tomorrow', sans-serif;
+}
+
+/* Focus Effect */
+input:focus {
+    border-color: #820ba3;
+    box-shadow:#820ba3;
+}
+
+/* Submit Button */
+.btn {
+    width: 100%;
+    padding: 10px;
+    background: #820ba3;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-family: 'Tomorrow', sans-serif;
+}
+
+.btn:hover {
+    background: #820ba3;
+}
+
+/* Google Button Styling */
+.google-btn {
+    width: 100%;
+    padding: 10px;
+    margin-top: 15px;
+    background: #db4437;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: background-color 0.3s ease;
+    font-family: 'Tomorrow', sans-serif;
+}
+
+.google-btn img {
+    width: 20px;
+    height: 20px;
+}
+
+.google-btn:hover {
+    background: #b8362c;
+}
+
+/* Login Link Styling */
+.login-link {
+    margin-top: 15px;
+    font-size: 14px;
+    color: #555;
+}
+
+.login-link a {
+    color: #820ba3;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.login-link a:hover {
+    text-decoration: underline;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 480px) {
+    .container {
+        padding: 15px;
+    }
+
+    h1 {
+        font-family: 'Tomorrow', sans-serif;
+        font-size: 24px;
+    }
+
+    .btn, .google-btn {
+        font-size: 14px;
+    }
+}

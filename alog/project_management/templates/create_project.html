@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Tomorrow:wght@400;700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Management</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='creat_project.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Project Management</h1>
+        <h1>add your Project</h1>
+
+        <!-- عرض رسائل النجاح/الفشل -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="alerts">
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <form id="project-form" method="POST" action="{{ url_for('create_project') }}">
+            <!-- بيانات المشروع -->
+            <input type="text" name="title" placeholder="Project Title" required>
+            <textarea name="description" placeholder="Project Description" required></textarea>
+            <textarea name="requirements" placeholder="Project Requirements" required></textarea>
+            <input type="text" name="leader" placeholder="Team Leader" required>
+
+            <!-- الحقول الديناميكية لأعضاء الفريق -->
+            <div>
+                <label for="team_size">Number of Team Members:</label>
+                <input type="number" id="team_size" placeholder="Enter team size" min="1" required>
+                <button type="button" onclick="generateTeamFields()">Generate Fields</button>
+            </div>
+
+            <div id="team-members-container">
+                <!-- الحقول ستُضاف هنا ديناميكيًا -->
+            </div>
+
+            <!-- المهام -->
+            <div id="task-container">
+                <h3>Tasks</h3>
+                <div class="task">
+                    <input type="text" name="task_name[]" placeholder="Task Name" required>
+                    <select name="assignee[]" class="assignee-select" required>
+                        <option value="" disabled selected>Assign to</option>
+                    </select>
+                    <select name="difficulty[]" required>
+                        <option value="" disabled selected>Difficulty</option>
+                        <option value="Easy">Easy</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Hard">Hard</option>
+                    </select>
+                    <input type="date" name="deadline[]" required>
+                </div>
+            </div>
+            <button type="button" class="add-task-btn" onclick="addTask()">Add Task</button>
+
+            <input type="submit" value="Create Project">
+        </form>
+
+        <!-- أزرار التنقل -->
+        <div class="navigation-buttons">
+            <a href="{{ url_for('view_projects') }}" class="btn">My Projects</a>
+            <a href="{{ url_for('index') }}" class="btn">Home</a>
+        </div>
+    </div>
+
+    <script>
+        // إضافة الحقول الديناميكية لأعضاء الفريق
+        function generateTeamFields() {
+            const container = document.getElementById('team-members-container');
+            const teamSize = parseInt(document.getElementById('team_size').value, 10);
+            container.innerHTML = ''; // حذف الحقول القديمة
+
+            if (!isNaN(teamSize) && teamSize > 0) {
+                for (let i = 1; i <= teamSize; i++) {
+                    const memberField = document.createElement('input');
+                    memberField.type = 'text';
+                    memberField.name = 'team_members[]';
+                    memberField.placeholder = `Team Member ${i} Name`;
+                    memberField.required = true;
+                    memberField.addEventListener('input', updateAssigneeOptions);
+                    container.appendChild(memberField);
+                }
+            } else {
+                alert('Please enter a valid team size.');
+            }
+
+            updateAssigneeOptions();
+        }
+
+        // تحديث خيارات "Assign to" بناءً على أسماء الفريق
+        function updateAssigneeOptions() {
+            const memberFields = document.querySelectorAll('#team-members-container input');
+            const assigneeSelects = document.querySelectorAll('.assignee-select');
+
+            const teamMembers = Array.from(memberFields).map(field => field.value.trim()).filter(Boolean);
+
+            assigneeSelects.forEach(select => {
+                select.innerHTML = '<option value="" disabled selected>Assign to</option>';
+                teamMembers.forEach(member => {
+                    const option = document.createElement('option');
+                    option.value = member;
+                    option.textContent = member;
+                    select.appendChild(option);
+                });
+            });
+        }
+
+        // إضافة مهمة جديدة
+        function addTask() {
+            const taskContainer = document.getElementById('task-container');
+            const newTask = document.createElement('div');
+            newTask.className = 'task';
+            newTask.innerHTML = `
+                <input type="text" class="task_name" name="task_name[]" placeholder="Task Name" required>
+                <select name="assignee[]" class="assignee-select" required>
+                    <option value="" disabled selected>Assign to</option>
+                </select>
+                <select name="difficulty[]" required>
+                    <option value="" disabled selected>Difficulty</option>
+                    <option value="Easy">Easy</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Hard">Hard</option>
+                </select>
+                <input type="date" name="deadline[]" required>
+            `;
+            taskContainer.appendChild(newTask);
+
+            updateAssigneeOptions();
+        }
+    </script>
+</body>
+</html>
